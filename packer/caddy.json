@@ -1,0 +1,52 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `aws_region`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
+      "instance_type": "m3.medium",
+      "ssh_username": "ubuntu",
+      "ami_name": "Caddy-Server-{{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "expect_disconnect": true,
+      "inline": [
+        "sudo apt-get -y update",
+        "sudo apt-get -y dist-upgrade",
+        "sudo apt-get -y autoremove",
+        "sudo reboot"
+      ]
+    },
+    {
+      "pause_before": "30s",
+      "type": "shell",
+      "inline": [
+        "curl https://getcaddy.com | bash -s personal",
+        "sudo chown root:root /usr/local/bin/caddy",
+        "sudo chmod 755 /usr/local/bin/caddy",
+        "sudo setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy",
+        "sudo mkdir /etc/caddy",
+        "sudo chown root:root /etc/caddy",
+        "ulimit -n 8192",
+        "wget https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service",
+        "sudo mv caddy.service /etc/systemd/system/",
+        "sudo chown root:root /etc/systemd/system/caddy.service",
+        "sudo chmod 644 /etc/systemd/system/caddy.service",
+        "sudo systemctl daemon-reload"
+      ]
+    }
+  ]
+}

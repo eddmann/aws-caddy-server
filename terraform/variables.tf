@@ -1,0 +1,10 @@
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
+variable "aws_region" {}
+variable "caddy_availability_zone" {}
+variable "caddy_ami_id" {}
+variable "caddy_eip_id" {}
+variable "caddy_volume_id" {}
+variable "caddy_ssh_key" {}
+variable "caddy_domain" {}
+variable "caddy_email" {}
